@@ -1,6 +1,16 @@
 # WPF Toaster
 
-A lightweight toast notification system for WPF, inspired by Sonner. Supports stacking, animations, promise-based toasts, and configurable positioning.
+A lightweight, MVVM-compliant toast notification system for WPF, inspired by Sonner. Built with adaptable UI and thoughtful UX at its core — smooth animations, stacking behavior, promise-based toasts, and configurable positioning out of the box.
+
+## Features
+
+- Fully MVVM-compliant architecture with no code-behind logic
+- Adaptive UI that integrates cleanly into any WPF application
+- Sonner-style stacking with hover-to-expand interaction
+- Smooth entrance, exit, and reorder animations
+- Async promise toasts with loading spinner and automatic resolution
+- Six configurable positions via XAML
+- Themeable through resource dictionaries
 
 ## Setup
 
