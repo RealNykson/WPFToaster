@@ -1,0 +1,48 @@
+<ContentControl
+    x:Class="MinimalToastExample.Views.ToastHost"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MinimalToastExample.Converters"
+    xmlns:viewmodels="clr-namespace:MinimalToastExample.ViewModels"
+    xmlns:views="clr-namespace:MinimalToastExample.Views">
+
+    <ContentControl.Resources>
+        <converters:ToastPositionToHorizontalAlignmentConverter x:Key="PosToHAlign" />
+        <converters:ToastPositionToVerticalAlignmentConverter x:Key="PosToVAlign" />
+        <converters:ToastStackZIndexConverter x:Key="StackZIndex" />
+    </ContentControl.Resources>
+
+    <ContentControl.Template>
+        <ControlTemplate TargetType="ContentControl">
+            <Grid>
+                <ContentPresenter />
+
+                <ItemsControl
+                    Margin="16"
+                    HorizontalAlignment="{Binding Position, RelativeSource={RelativeSource AncestorType=views:ToastHost}, Converter={StaticResource PosToHAlign}}"
+                    VerticalAlignment="{Binding Position, RelativeSource={RelativeSource AncestorType=views:ToastHost}, Converter={StaticResource PosToVAlign}}"
+                    IsHitTestVisible="True"
+                    ItemsSource="{Binding Source={x:Static viewmodels:ToasterVM.Instance}, Path=Toasts}"
+                    MouseEnter="ToastArea_MouseEnter"
+                    MouseLeave="ToastArea_MouseLeave">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Grid />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Panel.ZIndex" Value="{Binding Index, Converter={StaticResource StackZIndex}}" />
+                            <Setter Property="VerticalAlignment" Value="{Binding Position, Source={x:Static viewmodels:ToasterVM.Instance}, Converter={StaticResource PosToVAlign}}" />
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <views:ToastItem DataContext="{Binding}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </ControlTemplate>
+    </ContentControl.Template>
+</ContentControl>

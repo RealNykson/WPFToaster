@@ -1,0 +1,234 @@
+<UserControl
+    x:Class="MinimalToastExample.Views.ToastItem"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:MinimalToastExample.Behaviors"
+    xmlns:converters="clr-namespace:MinimalToastExample.Converters"
+    xmlns:essentials="clr-namespace:MinimalToastExample.Essentials"
+    xmlns:viewmodels="clr-namespace:MinimalToastExample.ViewModels"
+    Width="340"
+    Padding="0,10"
+    Background="Transparent"
+    Opacity="0"
+    RenderTransformOrigin="0.5,0.5">
+
+    <UserControl.Resources>
+        <converters:ToastStatusToIconDataConverter x:Key="StatusToIcon" />
+        <converters:ToastStatusToAccentBrushConverter x:Key="StatusToAccent" />
+        <converters:ToastStackOffsetConverter x:Key="StackOffset" />
+        <converters:ToastStackScaleConverter x:Key="StackScale" />
+        <converters:ToastStackOpacityConverter x:Key="StackOpacity" />
+        <converters:ToastStackVisibilityConverter x:Key="StackVisibility" />
+    </UserControl.Resources>
+
+    <behaviors:SmoothTransform.TargetY>
+        <MultiBinding Converter="{StaticResource StackOffset}">
+            <Binding Path="Index" />
+            <Binding Path="IsExpanded" Source="{x:Static viewmodels:ToasterVM.Instance}" />
+            <Binding Path="IsTopPosition" />
+            <Binding Path="IsVisible" />
+        </MultiBinding>
+    </behaviors:SmoothTransform.TargetY>
+
+    <behaviors:SmoothTransform.TargetScale>
+        <MultiBinding Converter="{StaticResource StackScale}">
+            <Binding Path="Index" />
+            <Binding Path="IsExpanded" Source="{x:Static viewmodels:ToasterVM.Instance}" />
+        </MultiBinding>
+    </behaviors:SmoothTransform.TargetScale>
+
+    <behaviors:SmoothTransform.TargetOpacity>
+        <MultiBinding Converter="{StaticResource StackOpacity}">
+            <Binding Path="Index" />
+            <Binding Path="IsExpanded" Source="{x:Static viewmodels:ToasterVM.Instance}" />
+            <Binding Path="IsVisible" />
+        </MultiBinding>
+    </behaviors:SmoothTransform.TargetOpacity>
+
+    <UserControl.Visibility>
+        <MultiBinding Converter="{StaticResource StackVisibility}">
+            <Binding Path="Index" />
+            <Binding Path="IsExpanded" Source="{x:Static viewmodels:ToasterVM.Instance}" />
+        </MultiBinding>
+    </UserControl.Visibility>
+
+    <UserControl.RenderTransform>
+        <TransformGroup>
+            <ScaleTransform ScaleX="1" ScaleY="1" />
+            <TranslateTransform />
+        </TransformGroup>
+    </UserControl.RenderTransform>
+
+    <Border
+        Height="54"
+        Padding="12,10"
+        Background="{DynamicResource ToastBackground}"
+        BorderThickness="0"
+        CornerRadius="6">
+
+        <Border.Effect>
+            <DropShadowEffect
+                BlurRadius="12"
+                Direction="270"
+                Opacity="0.25"
+                ShadowDepth="4"
+                Color="Black" />
+        </Border.Effect>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Status Icon (visible when not loading) -->
+            <Viewbox
+                Grid.Column="0"
+                Width="18"
+                Height="18"
+                Margin="0,0,10,0"
+                VerticalAlignment="Center">
+                <Viewbox.Style>
+                    <Style TargetType="Viewbox">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Status}" Value="{x:Static essentials:ToastStatus.Loading}">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Viewbox.Style>
+                <Path
+                    Data="{Binding Status, Converter={StaticResource StatusToIcon}}"
+                    Fill="Transparent"
+                    Stretch="Uniform"
+                    Stroke="{Binding Status, Converter={StaticResource StatusToAccent}}"
+                    StrokeThickness="1.5" />
+            </Viewbox>
+
+            <!-- Spinner (visible only when loading) -->
+            <Grid
+                Grid.Column="0"
+                Width="16"
+                Height="16"
+                Margin="0,0,10,0"
+                VerticalAlignment="Center">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Status}" Value="{x:Static essentials:ToastStatus.Loading}">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <Ellipse
+                    Width="14"
+                    Height="14"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Opacity="0.2"
+                    Stroke="{DynamicResource ToastLoadingAccent}"
+                    StrokeThickness="1.5" />
+                <Path
+                    Width="14"
+                    Height="14"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Data="M7,0 A7,7 0 0,1 14,7"
+                    RenderTransformOrigin="0.5,0.5"
+                    Stretch="None"
+                    Stroke="{DynamicResource ToastLoadingAccent}"
+                    StrokeEndLineCap="Round"
+                    StrokeStartLineCap="Round"
+                    StrokeThickness="1.5">
+                    <Path.RenderTransform>
+                        <RotateTransform />
+                    </Path.RenderTransform>
+                    <Path.Style>
+                        <Style TargetType="Path">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Status}" Value="{x:Static essentials:ToastStatus.Loading}">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever">
+                                                <DoubleAnimation
+                                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                    From="0"
+                                                    To="360"
+                                                    Duration="0:0:0.8" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Path.Style>
+                </Path>
+            </Grid>
+
+            <!-- Text Content -->
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock
+                    FontSize="13"
+                    FontWeight="Medium"
+                    Foreground="{DynamicResource ToastForeground}"
+                    Text="{Binding Title}"
+                    TextWrapping="Wrap">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Title}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock Text="{Binding Message}" TextWrapping="Wrap">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontSize" Value="12" />
+                            <Setter Property="Foreground" Value="{DynamicResource ToastForegroundSecondary}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Title}" Value="{x:Null}">
+                                    <Setter Property="FontSize" Value="13" />
+                                    <Setter Property="FontWeight" Value="Medium" />
+                                    <Setter Property="Foreground" Value="{DynamicResource ToastForeground}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
+
+            <!-- Close Button (hidden during promise loading) -->
+            <Button
+                Grid.Column="2"
+                Width="20"
+                Height="20"
+                Margin="8,0,0,0"
+                VerticalAlignment="Center"
+                Command="{Binding DismissCommand}"
+                Cursor="Hand">
+                <Button.Style>
+                    <Style BasedOn="{StaticResource IconButton}" TargetType="Button">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsPromise}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+                <Path
+                    Width="8"
+                    Height="8"
+                    Data="M0,0 L8,8 M0,8 L8,0"
+                    Stretch="Uniform"
+                    Stroke="{DynamicResource ToastForegroundSecondary}"
+                    StrokeThickness="1.5" />
+            </Button>
+        </Grid>
+    </Border>
+</UserControl>
