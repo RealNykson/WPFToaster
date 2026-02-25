@@ -1,6 +1,6 @@
 # WPF Toaster
 
-I needed a clean toast system for WPF that follows MVVM properly and doesn't feel like an afterthought. Most existing solutions either break the pattern or look dated, so I built this one from scratch. It handles stacking, animations, async promise toasts, and theming — all configurable from XAML. Drop it into any project and it just works.
+I needed a clean toast system for WPF that follows MVVM properly and doesn't feel like an afterthought. Most existing solutions either break the pattern or look dated, so I built this one from scratch. It handles stacking, animations, async promise toasts, and theming, all configurable from XAML. Drop it into any project and it just works.
 
 ![Preview](preview.png)
 
